@@ -1,5 +1,8 @@
-import { listInputCommands } from "./repl.helpers.js";
+
+import { loadEnvFile } from "node:process";
+loadEnvFile()
 import { describe, expect, test } from "vitest";
+import { listInputCommands } from "./repl.commands.js";
 
 describe.each([
   {
@@ -18,6 +21,7 @@ describe.each([
 ])("listInputCommands($input)", ({ input, expected }) => {
   test(`Expected: ${expected}`, () => {
     const actual = listInputCommands(input)
+    console.log('actual:', actual)
 
     // The `expect` and `toHaveLength` functions are from vitest
     // they will fail the test if the condition is not met

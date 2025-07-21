@@ -1,18 +1,22 @@
+import { Config } from "../config/config.types.js";
+import { texts } from "./repl.texts.js";
+import type { CLICommand } from "./repl.types.js";
 
-import { messages } from "./repl.messages.js";
-import { CLICommand } from "./repl.types.js";
+
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMMANDS                                  */
 /* -------------------------------------------------------------------------- */
 /** Exits process & logs a closing message */
 export const exit = () => {
-    console.info(messages.promptClosing)
+    console.info(texts.promptClosing)
     process.exit(0)
 }
 
 /** Logs on exit */
-export const help = () => {}
+export const help = () => {
+  console.info('[ WIP: TO IMPLEMENT ]')
+}
 
 
 /* -------------------------------------------------------------------------- */
@@ -20,7 +24,7 @@ export const help = () => {}
 /* -------------------------------------------------------------------------- */
 
 /** Commands Registry */
-export function getCommands(): Record<string, CLICommand> {
+export const getCommands = (): Record<string, CLICommand> => {
   return {
     help: {
       name: "help",
@@ -29,25 +33,39 @@ export function getCommands(): Record<string, CLICommand> {
     },
     exit: {
       name: "exit",
-      description: "Exits the pokedex",
+      description: `Exits the ${process.env.DECK_NAME}`,
       callback: exit,
     },
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   HELPERS                                  */
+/* -------------------------------------------------------------------------- */
+/** Sanitize input into array of words */
+export const listInputCommands = (input:string): string[] => {
+  const words = input
+    .toLowerCase()
+    .split(/\s/)
+    .filter(Boolean)
+
+  return words;
 }
 
 
 /* -------------------------------------------------------------------------- */
 /*                                    USAGE                                   */
 /* -------------------------------------------------------------------------- */
+
 /** Displays commands usages  */
-export const displayCommandUsages = (() => {
-  const commands = getCommands();
+export const displayCommandUsages = (config: Config) => {
+  const commands = config.commands
   let header = '';
   let content = '';
 
   const sectionMarker = "--------------------------------------------------------";
   header += `\t${sectionMarker}\n\t${sectionMarker}\n\n`
-  header += `\t\t\t${messages.promptIntro}\n\n`
+  header += `\t\t\t${texts.promptIntro}\n\n`
 
   for( let command in commands ){
     const commandDetailText = `\n\t\t- ${command}:\t ${commands[command].description}`
@@ -56,4 +74,4 @@ export const displayCommandUsages = (() => {
 
   const text = `${header}\n${content}\n`
   console.info(text)
-})();
+};
