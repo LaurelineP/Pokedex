@@ -4,6 +4,7 @@ import { initReplState, logPrompt } from './repl.utils.js';
 import { texts } from './repl.texts.js'
 import { listInputCommands } from './repl.commands.js';
 import { config } from '../config/config.index.js';
+import { DeckAPI } from '../services/deck.services.js';
 
 
 
@@ -11,23 +12,28 @@ import { config } from '../config/config.index.js';
 /** Executes Deck REPL */
 export const startREPL = (deckName: string = 'Deck') => {
 
-    const commands = config.commands
+    const commands = config.commands;
     const rl = initReplState(texts.prompt);
 
     /* Event callback configuration */
-    const callback = (valueFromStream: string) => {
+    const callback = async (valueFromStream: string) => {
         const inputWords = listInputCommands(valueFromStream);
         
 
         if(!inputWords.length){
-            logPrompt("nothing indeedx")
+            logPrompt(texts.promptValueBodyCommandRetry)
 
             rl.prompt();
         } else {
-            /* Dynamic gets command if available or error */
+            /* Dynamically gets command if available or error */
             const command = inputWords[0];
             try {
-                commands[ command ]?.callback();
+                const deckAPI = new DeckAPI();
+                /* Executes the command callbacks */
+                const data: string[] = await commands[ command ]?.callback(deckAPI);
+                for(let datum of data){
+                    logPrompt(datum, false)
+                }
             } catch( error ){
                 console.error('Unknown command.')
             }
@@ -40,7 +46,7 @@ export const startREPL = (deckName: string = 'Deck') => {
 
     /* Handles line event */
     rl
-        .on('line', callback)
+        .on('line', async (val: string) => { await callback(val)})
         .on('close', commands.exit.callback)
 }
 

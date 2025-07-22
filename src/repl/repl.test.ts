@@ -21,7 +21,6 @@ describe.each([
 ])("listInputCommands($input)", ({ input, expected }) => {
   test(`Expected: ${expected}`, () => {
     const actual = listInputCommands(input)
-    console.log('actual:', actual)
 
     // The `expect` and `toHaveLength` functions are from vitest
     // they will fail the test if the condition is not met

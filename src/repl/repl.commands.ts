@@ -1,3 +1,4 @@
+import { DeckAPI } from "../services/deck.services.js";
 import { Config } from "../config/config.types.js";
 import { texts } from "./repl.texts.js";
 import type { CLICommand } from "./repl.types.js";
@@ -7,17 +8,31 @@ import type { CLICommand } from "./repl.types.js";
 /* -------------------------------------------------------------------------- */
 /*                                  COMMANDS                                  */
 /* -------------------------------------------------------------------------- */
-/** Exits process & logs a closing message */
+/** Exits process & logs a closing message - "exit" command related */
 export const exit = () => {
     console.info(texts.promptClosing)
     process.exit(0)
 }
 
-/** Logs on exit */
+/** Logs on exit - "help" command related */
 export const help = () => {
   console.info('[ WIP: TO IMPLEMENT ]')
 }
 
+/** Displays 20 available maps - "map" command related */
+export const locateMaps = async (deckAPI: DeckAPI) => {
+  const results = await (await deckAPI.fetchLocations('next')).results;
+
+  const names = results.map(x => x.name)
+  return names
+}
+
+export const locateMapsBack = async (deckAPI: DeckAPI) => {
+  const results = await (await deckAPI.fetchLocations('previous')).results;
+
+  const names = results.map(x => x.name)
+  return names
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                  REGISTRY                                  */
@@ -36,6 +51,16 @@ export const getCommands = (): Record<string, CLICommand> => {
       description: `Exits the ${process.env.DECK_NAME}`,
       callback: exit,
     },
+    map: {
+      name: 'map',
+      description: "Displays 20 available maps",
+      callback: async(deckAPI: DeckAPI) => await locateMaps(deckAPI)
+    },
+    mapb: {
+      name: 'mapb',
+      description: "Displays 20 available maps",
+      callback: async(deckAPI: DeckAPI) => await locateMapsBack(deckAPI)
+    }
   };
 }
 

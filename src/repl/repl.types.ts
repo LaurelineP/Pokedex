@@ -1,7 +1,8 @@
+import { DeckAPI } from "src/services/deck.services";
 
 export type CLICommand = {
     name: string;
     description: string;
-    callback: (commands?: Record<string, CLICommand>) => void
+    callback: (deckState: DeckAPI) => any
 }
 export type CLICommands = Record<string, CLICommand>

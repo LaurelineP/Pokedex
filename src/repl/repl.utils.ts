@@ -2,9 +2,11 @@ import { texts } from "./repl.texts.js";
 import type { CLICommands } from "./repl.types.js";
 import { createInterface, type Interface } from "readline";
 
-export const logPrompt = (input: string) => {
+/** Logger  */
+export const logPrompt = (input: string, hasEndingNewLine: boolean = true) => {
     const baseMessage = texts.promptValueHeader
-    const message = `${baseMessage} ${input}\n`
+    let message = `${baseMessage} ${input}`
+    if( hasEndingNewLine ) message += '\n';
     console.info(message);
 }
 
