@@ -1,7 +1,8 @@
 
 import { getOrThrowEnvVariable } from "./config.helpers.js";
 import { getCommands } from "../repl/repl.commands.js";
-import { Config } from "./config.types.js";
+import { CacheAPI } from "../state/config.cache.js";
+import type { Config } from "./config.types.js";
 
 /** Loads environment file to generate a config */
 const loadConfig = () => {
@@ -17,7 +18,9 @@ const loadConfig = () => {
         commands: getCommands(),
         api: {
             baseURL: `${DECK_API}/${DECK_API_VERSION}`
-        }
+        },
+        cachedData: new CacheAPI(3600000)
+
     }
     
     return config

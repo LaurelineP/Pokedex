@@ -2,7 +2,7 @@
 import { loadEnvFile } from "node:process";
 loadEnvFile()
 import { describe, expect, test } from "vitest";
-import { listInputCommands } from "./repl.commands.js";
+import { getTerminalInputs } from "./repl.commands.js";
 
 describe.each([
   {
@@ -18,9 +18,9 @@ describe.each([
       Here we go  `,
     expected: ["here", "we", "go"],
   },
-])("listInputCommands($input)", ({ input, expected }) => {
+])("getTerminalInputs($input)", ({ input, expected }) => {
   test(`Expected: ${expected}`, () => {
-    const actual = listInputCommands(input)
+    const actual = getTerminalInputs(input)
 
     // The `expect` and `toHaveLength` functions are from vitest
     // they will fail the test if the condition is not met

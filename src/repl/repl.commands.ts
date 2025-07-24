@@ -1,74 +1,34 @@
-import { DeckAPI } from "../services/deck.services.js";
-import { Config } from "../config/config.types.js";
+import { DeckAPI } from "../services/deck.api.js";
 import { texts } from "./repl.texts.js";
 import type { CLICommand } from "./repl.types.js";
+import { loadMapNamesBack, loadMapNamesNext } from "../services/deck.api.handlers.js";
+import { config } from "../config/config.index.js";
+import { Config } from "../config/config.types.js";
 
 
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMMANDS                                  */
 /* -------------------------------------------------------------------------- */
+
 /** Exits process & logs a closing message - "exit" command related */
-export const exit = () => {
+export function exit () {
     console.info(texts.promptClosing)
     process.exit(0)
 }
 
 /** Logs on exit - "help" command related */
-export const help = () => {
-  console.info('[ WIP: TO IMPLEMENT ]')
+export function help () {
+  displayCommandUsages(config, false);
 }
 
-/** Displays 20 available maps - "map" command related */
-export const locateMaps = async (deckAPI: DeckAPI) => {
-  const results = await (await deckAPI.fetchLocations('next')).results;
 
-  const names = results.map(x => x.name)
-  return names
-}
-
-export const locateMapsBack = async (deckAPI: DeckAPI) => {
-  const results = await (await deckAPI.fetchLocations('previous')).results;
-
-  const names = results.map(x => x.name)
-  return names
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                  REGISTRY                                  */
-/* -------------------------------------------------------------------------- */
-
-/** Commands Registry */
-export const getCommands = (): Record<string, CLICommand> => {
-  return {
-    help: {
-      name: "help",
-      description: "Displays a help message",
-      callback: help
-    },
-    exit: {
-      name: "exit",
-      description: `Exits the ${process.env.DECK_NAME}`,
-      callback: exit,
-    },
-    map: {
-      name: 'map',
-      description: "Displays 20 available maps",
-      callback: async(deckAPI: DeckAPI) => await locateMaps(deckAPI)
-    },
-    mapb: {
-      name: 'mapb',
-      description: "Displays 20 available maps",
-      callback: async(deckAPI: DeckAPI) => await locateMapsBack(deckAPI)
-    }
-  };
-}
 
 /* -------------------------------------------------------------------------- */
 /*                                   HELPERS                                  */
 /* -------------------------------------------------------------------------- */
 /** Sanitize input into array of words */
-export const listInputCommands = (input:string): string[] => {
+export const getTerminalInputs = (input:string): string[] => {
   const words = input
     .toLowerCase()
     .split(/\s/)
@@ -77,13 +37,19 @@ export const listInputCommands = (input:string): string[] => {
   return words;
 }
 
+export const updateCache = (data: any, url: string) => {
+  
+    config.cachedData.add(url, data);
+  
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*                                    USAGE                                   */
 /* -------------------------------------------------------------------------- */
 
 /** Displays commands usages  */
-export const displayCommandUsages = (config: Config) => {
+export const displayCommandUsages = (config: Config, isFirstDisplay: boolean = true) => {
   const commands = config.commands
   let header = '';
   let content = '';
@@ -97,6 +63,44 @@ export const displayCommandUsages = (config: Config) => {
     content += commandDetailText;
   }
 
-  const text = `${header}\n${content}\n`
+  const text = isFirstDisplay ? `${header}\n${content}\n` : `\n${content}\n`
   console.info(text)
 };
+
+
+/* -------------------------------------------------------------------------- */
+/*                                  REGISTRY                                  */
+/* -------------------------------------------------------------------------- */
+
+/** Commands Registry */
+export function getCommands(): Record<string, CLICommand> {
+  return {
+    help: {
+      name: "help",
+      description: "Displays a help message",
+      callback: help,
+      isDeckCommand: false
+    },
+    exit: {
+      name: "exit",
+      description: `Exits the ${process.env.DECK_NAME}`,
+      callback: exit,
+      isDeckCommand: false
+    },
+    /* -------------------------------------------------------------------------- */
+    /*                  DECK COMMANDS - Requiring external fetchs                 */
+    /* -------------------------------------------------------------------------- */
+    map: {
+      name: 'map',
+      description: "Displays the next 20 available map location names",
+      callback: async(deckAPI: DeckAPI) => await loadMapNamesNext(deckAPI),
+      isDeckCommand: true
+    },
+    mapb: {
+      name: 'mapb',
+      description: "Displays the previous 20 available location names",
+      callback: async(deckAPI: DeckAPI) => await loadMapNamesBack(deckAPI),
+      isDeckCommand: true
+    }
+  };
+}

@@ -9,5 +9,7 @@ export const texts = {
     /** Log's message for closing action from CLI */
     promptClosing: '👋 Closing the Pokedex... Goodbye!',
     /** Asks to retry providing an input */
-    promptValueBodyCommandRetry: '❌ Please provide a valid command'
+    promptValueBodyCommandRetry: '❌ Please provide a valid command',
+
+    promptValueBodyCommandUnssuported: '❌ Unssupported commands'
 }
