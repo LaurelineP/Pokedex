@@ -4,7 +4,7 @@ import { createInterface, type Interface } from "readline";
 
 /** Logger  */
 export const logPrompt = (input: string, hasEndingNewLine: boolean = true) => {
-    const baseMessage = texts.promptValueHeader
+    const baseMessage = `\t${texts.promptValueHeader}`
     let message = `${baseMessage} ${input}`
     if( hasEndingNewLine ) message += '\n';
     console.info(message);

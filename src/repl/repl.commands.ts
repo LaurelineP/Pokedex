@@ -1,7 +1,7 @@
 import { DeckAPI } from "../services/deck.api.js";
 import { texts } from "./repl.texts.js";
 import type { CLICommand } from "./repl.types.js";
-import { loadMapNamesBack, loadMapNamesNext } from "../services/deck.api.handlers.js";
+import { loadMapNamesBack, loadMapNamesNext, loadPopulation } from "../services/deck.api.handlers.js";
 import { config } from "../config/config.index.js";
 import { Config } from "../config/config.types.js";
 
@@ -35,12 +35,6 @@ export const getTerminalInputs = (input:string): string[] => {
     .filter(Boolean)
 
   return words;
-}
-
-export const updateCache = (data: any, url: string) => {
-  
-    config.cachedData.add(url, data);
-  
 }
 
 
@@ -100,6 +94,12 @@ export function getCommands(): Record<string, CLICommand> {
       name: 'mapb',
       description: "Displays the previous 20 available location names",
       callback: async(deckAPI: DeckAPI) => await loadMapNamesBack(deckAPI),
+      isDeckCommand: true
+    },
+    explore: {
+      name: 'explore',
+      description: "Get population for a given location",
+      callback: async(deckAPI: DeckAPI, locationName: string) => await loadPopulation(deckAPI, locationName),
       isDeckCommand: true
     }
   };

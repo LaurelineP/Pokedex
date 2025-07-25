@@ -1,7 +1,7 @@
 
 import { getOrThrowEnvVariable } from "./config.helpers.js";
 import { getCommands } from "../repl/repl.commands.js";
-import { CacheAPI } from "../state/config.cache.js";
+import { CacheAPI } from "../state/state.cache.js";
 import type { Config } from "./config.types.js";
 
 /** Loads environment file to generate a config */

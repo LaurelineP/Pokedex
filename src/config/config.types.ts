@@ -1,5 +1,5 @@
 import { CLICommand } from "../../src/repl/repl.types.js"
-import { CacheAPI } from "../state/config.cache.js";
+import { CacheAPI } from "../state/state.cache.js";
 
 export type Config = {
     /** Environments variable */

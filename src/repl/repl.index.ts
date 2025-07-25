@@ -7,7 +7,7 @@ import { getTerminalInputs } from './repl.commands.js';
 import { config } from '../config/config.index.js';
 import { DeckAPI } from '../services/deck.api.js';
 import { Interface } from 'readline';
-import { APICallback, RegularCallback } from './repl.types.js';
+import { APICallback, APICallbackWithArg, RegularCallback } from './repl.types.js';
 
 
 
@@ -41,7 +41,7 @@ const handleTerminalInputs = (terminalInputLine: string, rl: Interface) => {
 
     const inputLength = inputWords.length;
     const hasNoCommands = inputLength === 0;
-    const isSupportedCommands = inputLength === 1 && inputWords?.[0] in config.commands;
+    const isSupportedCommands = inputLength <= 2 && inputWords?.[0] in config.commands;
     
     /* Asks to retry submitting a command */
     if(hasNoCommands){
@@ -57,6 +57,7 @@ const handleTerminalInputs = (terminalInputLine: string, rl: Interface) => {
 /** Handles the command requested */
 const handleCommand = async (commandInputs: string[], rl: Interface) => {
     const supportedCommand = commandInputs[0];
+    const supportedArg = commandInputs?.[1];
     const commandMapper = config.commands;
     let data;
     try {
@@ -66,12 +67,28 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
         // Execute the command handler based on isDeckCommand which condition the argument
         if(!requestedCommand.isDeckCommand){
             (requestedCommand.callback as RegularCallback)()
-        } else {
+        } else if(!supportedArg) {
             data = await (await requestedCommand.callback as APICallback)(deckAPI)
+        } else if(supportedArg){
+            data = await (await requestedCommand.callback as APICallbackWithArg)(deckAPI, supportedArg)
         }
        
-        /* Lists requested locations names */
-        if( requestedCommand.name === 'map' || requestedCommand.name === 'mapb'){
+        /* Logs requested datum (locations, populations names) */
+        const shouldDisplayLocations = requestedCommand.name === 'map' || requestedCommand.name === 'mapb';
+        const shouldDisplayPopulation = requestedCommand.name === 'explore';
+        const shouldLogEntry = shouldDisplayLocations || shouldDisplayPopulation;
+
+        /* Deduct message */
+        const messageStart = '\n\t\t';
+        const messageStartWithMessage = '\n\n\t\t';
+        let messageContent = '';
+        if(shouldDisplayPopulation) messageContent += 'Exploring area... Found these:'
+
+        // updates message content to preprend line format
+        messageContent = messageContent ? `${messageStartWithMessage}${messageContent}` : messageStart;
+
+        console.info(messageContent)
+        if( shouldLogEntry ){
             data.forEach(( datum: string ) => logPrompt(datum, false))
         }
 

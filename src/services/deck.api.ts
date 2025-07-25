@@ -17,11 +17,19 @@ export class DeckAPI {
         DeckAPI.previousURL = response.previous
     }
 
+      get lastURL(){
+        return this.#lastURL
+    }
+
+    set lastURL( endpoint: string | null){
+        this.#lastURL = endpoint
+    }
+
     /* Fetches locations per bunch of 20 - [ "map" "mapb" commands ]*/
-       async fetchLocations(endpointPaginated: string): Promise<ResponseLocation> {
+    async fetchLocations(endpointPaginated: string): Promise<ResponseLocation> {
         try {
             const response = await (await fetch(endpointPaginated)).json();
-            this.#updatePaginations(response)
+            this.#updatePaginations(response);
             this.#updateLastURL(endpointPaginated)
             return response;
         } catch( error ){
@@ -33,18 +41,19 @@ export class DeckAPI {
     async fetchOneLocation(endpointPaginated: string){
         try {
             const response = await (await fetch(endpointPaginated)).json();
-            return response
+            return response;
         } catch (error){
             throw error
         }
     }
 
-    get lastURL(){
-        return this.#lastURL
-    }
-
-    set lastURL( endpoint: string | null){
-        this.#lastURL = endpoint
+    async fetchPopulation(endpoint: string): Promise<ResponseShallowPopulation>{
+        try {
+            const response = await(await fetch(endpoint)).json();
+            return response;
+        } catch( error ){
+            throw error;
+        }
     }
 }
 
@@ -62,3 +71,10 @@ export type Location = {
   url: string;
 };
 
+export type ResponseShallowPopulation = {
+    pokemon_encounters: EnconterPopulation[]
+}
+
+export type EnconterPopulation = {
+    pokemon: { name: string, url: string },
+}

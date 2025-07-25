@@ -10,6 +10,6 @@ export const texts = {
     promptClosing: '👋 Closing the Pokedex... Goodbye!',
     /** Asks to retry providing an input */
     promptValueBodyCommandRetry: '❌ Please provide a valid command',
-
+    /** Unsupported command message */
     promptValueBodyCommandUnssuported: '❌ Unssupported commands'
 }

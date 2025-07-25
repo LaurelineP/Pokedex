@@ -1,7 +1,7 @@
 {
   "name": "deck-repl",
   "version": "1.0.0",
-  "description": "Find a pokement using the pokedex-repl!",
+  "description": "Find a pokemon using the pokedex-repl!",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "start": "node dist/main.js",
     "dev": "pnpm build && pnpm start",
     "dev:log": "pnpm dev | tee repl.log",
-    "test": "vitest --run"
+    "test": "pnpm build && vitest --run"
   },
   "keywords": [],
   "author": "Laureline Paris",

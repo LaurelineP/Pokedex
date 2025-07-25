@@ -1,3 +1,5 @@
+import { config } from "../config/config.index.js";
+
 export type CacheEntry<T> = {
     createdAt: number;
     value: T;
@@ -43,3 +45,8 @@ export class CacheAPI<T> {
         return this.#cache.get(key)
     }
 }
+
+export const updateCache = (data: any, url: string) => {
+    config.cachedData.add(url, data);
+}
+

@@ -2,9 +2,9 @@
 /* -------------------------------------------------------------------------- */
 /*                                  I/O APIs                                  */
 /* -------------------------------------------------------------------------- */
-
 import { config } from "../config/config.index.js";
-import { updateCache } from "../repl/repl.commands.js";
+import { updateCache } from "../state/state.cache.js";
+
 import { getAPILocationEndpoint, mapNames } from "./deck.api.helpers.js";
 import { DeckAPI } from "./deck.api.js";
 
@@ -36,4 +36,20 @@ const loadMapNamesData = async (deckAPI: DeckAPI, endpoint: string)=> {
       .results.map(mapNames);
   deckAPI.lastURL = endpoint
   return names
+}
+
+/** Loads population for a given location */
+export const loadPopulation = async (deckAPI: DeckAPI, locationName: string) => {
+  const endpoint = `${config.api.baseURL}/location-area/${locationName}`
+  const cachedData = config.cachedData.get(endpoint);
+
+  const population = cachedData?.value 
+    || await( await deckAPI
+      .fetchPopulation(endpoint))
+      .pokemon_encounters
+      .map( datum => datum.pokemon)
+      .map( mapNames )
+      
+  updateCache(population, endpoint);
+  return population
 }
