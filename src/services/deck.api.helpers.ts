@@ -1,5 +1,5 @@
 import { config } from "../config/config.index.js";
-import { DeckAPI, Location } from "./deck.api.js"
+import { DeckAPI, MapLocation } from "./deck.api.js"
 
 
 export const getAPILocationEndpoint = (deckAPI: DeckAPI, action: 'next' | 'previous') => {
@@ -14,12 +14,17 @@ export const getAPILocationEndpoint = (deckAPI: DeckAPI, action: 'next' | 'previ
     if( !lastURL ){
         endpoint = buildLocationEndpoint(defaultURL, defaultOffset, defaultLimit)
     } else {
-        const _url = new URL(lastURL);
-        let paramsOffset = Number(_url.searchParams.get('offset'))
+        const previousEndpoint = new URL(lastURL);
+        let previousOffset = Number(previousEndpoint.searchParams.get('offset'));
+        
+        if(previousOffset !== 0) {
+            previousOffset = action === 'next' ? previousOffset + 20 : previousOffset - 20;
+        }
         /* Minimal offset value.  */
-        paramsOffset = paramsOffset < 0 ? defaultOffset : paramsOffset
-        const _offset = action === 'next' ? paramsOffset + 20 : paramsOffset - 20;
-        endpoint = buildLocationEndpoint( defaultURL, _offset, defaultLimit);
+        previousOffset = previousOffset < 0 ? defaultOffset : previousOffset;
+        const minOffsetValue =  action === 'previous' && previousOffset ? previousOffset - 20 : 0;
+        const offset = action === 'next' ? previousOffset + 20 : minOffsetValue;
+        endpoint = buildLocationEndpoint( defaultURL, offset, defaultLimit);
     }
     return endpoint;
 }
@@ -29,4 +34,4 @@ const buildLocationEndpoint = (baseURL: string, offset: string | number, limit: 
 }
 
 
-export const mapNames = (v: Location ) => v.name;
+export const mapNames = (v: MapLocation ) => v.name;

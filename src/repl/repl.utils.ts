@@ -10,6 +10,11 @@ export const logPrompt = (input: string, hasEndingNewLine: boolean = true) => {
     console.info(message);
 }
 
+export const logRootPrompt = (input: string, hasEndingNewLine: boolean = true) => {
+    let message = `${texts.promptValueHeader} ${input}`
+    if( hasEndingNewLine ) message += '\n';
+    console.info(message);
+}
 
 export interface ReplState extends Interface {
     commands: CLICommands

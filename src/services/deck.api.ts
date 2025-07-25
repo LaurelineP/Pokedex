@@ -13,7 +13,7 @@ export class DeckAPI {
         this.#lastURL = endpoint
     }
 
-    #updatePaginations( response: ResponseLocation){
+    #updatePaginations( response: ResponseShallow<EndpointMap>){
         DeckAPI.nextURL     = response.next
         DeckAPI.previousURL = response.previous
     }
@@ -26,70 +26,49 @@ export class DeckAPI {
         this.#lastURL = endpoint
     }
 
-    /* Fetches locations per bunch of 20 - [ "map" "mapb" commands ]*/
-    async fetchLocations(endpointPaginated: string): Promise<ResponseLocation> {
+    async fetchEndpoint<T>(endpoint: string): Promise<ResponseShallow<T>>{
         try {
-            const response = await (await fetch(endpointPaginated)).json();
-            this.#updatePaginations(response);
-            this.#updateLastURL(endpointPaginated)
-            return response;
+            const response = await fetch(endpoint);
+            if( response.ok ) return response.json();
+            throw response;
         } catch( error ){
-            throw error
-        }
-    }
-
-
-    async fetchOneLocation(endpointPaginated: string){
-        try {
-            const response = await (await fetch(endpointPaginated)).json();
-            return response;
-        } catch (error){
-            throw error
-        }
-    }
-
-    async fetchPopulation(endpoint: string): Promise<ResponseShallowPopulation>{
-        try {
-            const response = await(await fetch(endpoint)).json();
-            return response;
-        } catch( error ){
-            throw error;
-        }
-    }
-
-    async fetchLivingEntity(endpoint: string): Promise<ResponseShallowEncounteredentity>{
-        try {
-            const response = await(await fetch(endpoint)).json();
-            return response;
-        } catch( error ){
-            throw error;
+            if( error instanceof Response && error.status === 404){
+                throw new Error('Not Found')
+            } else {
+                throw error;
+            }
         }
     }
 }
 
 
-export type ResponseLocation = {
-  next: string; // URL for the next 20
-  previous: string; // URL for the previous 20
-  count: number; // total locations
-  results: Location[] // 20 locations
-};
-
-
-export type Location = {
-  name: string;
-  url: string;
-};
-
-export type ResponseShallowPopulation = {
-    pokemon_encounters: EnconterPopulation[]
-}
-
-export type EnconterPopulation = {
+type Catchable = {
     pokemon: { name: string, url: string },
 }
 
-export type ResponseShallowEncounteredentity = {
-    base_experience: EnconterPopulation[],
-    name: string
+export type MapLocation = {
+  name: string;
+  url: string;
+};
+/** Location Area endpoint responses - with search params or not / default limit to 20  */
+export type EndpointMap = {
+    next: string; // URL for the next 20
+    previous: string; // URL for the previous 20
+    count: number; // total locations
+    results: MapLocation[] // 20 locations
 }
+
+/** One Location Area endpoint  */
+export type EndpointExplore = {
+    pokemon_encounters: Catchable[];
+}
+
+/** Pokemon endpoint response */
+export type EndpointCatch = {
+    base_experience: number;
+    name: string;
+}
+
+
+/** Generic Response Shallow type */
+export type ResponseShallow<T> = T
