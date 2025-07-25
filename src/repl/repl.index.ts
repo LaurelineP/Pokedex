@@ -76,22 +76,39 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
         /* Logs requested datum (locations, populations names) */
         const shouldDisplayLocations = requestedCommand.name === 'map' || requestedCommand.name === 'mapb';
         const shouldDisplayPopulation = requestedCommand.name === 'explore';
+        const shouldCapture = requestedCommand.name === 'catch'
         const shouldLogEntry = shouldDisplayLocations || shouldDisplayPopulation;
+
 
         /* Deduct message */
         const messageStart = '\n\t\t';
         const messageStartWithMessage = '\n\n\t\t';
         let messageContent = '';
-        if(shouldDisplayPopulation) messageContent += 'Exploring area... Found these:'
+        if(!shouldCapture){
 
-        // updates message content to preprend line format
-        messageContent = messageContent ? `${messageStartWithMessage}${messageContent}` : messageStart;
+            if(shouldDisplayPopulation) messageContent += 'Exploring area... Found these:'
+    
+            // updates message content to preprend line format
+            messageContent = messageContent ? `${messageStartWithMessage}${messageContent}` : messageStart;
+    
+            console.info(messageContent)
+            if( shouldLogEntry ){
+                data.forEach(( datum: string ) => logPrompt(datum, false))
+            }
+    
+        } 
+        /* ----------------------------- COMMAND - CATCH ---------------------------- */
+        else if(shouldCapture){
 
-        console.info(messageContent)
-        if( shouldLogEntry ){
-            data.forEach(( datum: string ) => logPrompt(datum, false))
+            console.info(`${messageStart}Throwing a Pokeball at ${supportedArg}...`);
+            data = await handleCatchCommand(commandInputs, rl)
+
+            const message = `${supportedArg} ${ data.isCaught ? 'caught' : 'escaped'}!`
+            logPrompt(message, false)
+            console.info(`${messageStart}Throwing a Pokeball at ${supportedArg}...`);
+            
         }
-
+        
         /* Returns prompt */
         rl.prompt();
 
@@ -99,4 +116,11 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
         console.error('Unknown command.')
         console.error(error)
     }
+}
+
+
+const handleCatchCommand =  async (commandInputs: string[], rl: Interface) : Promise<{ name: 'pikachu', baseExperience: 112, isCaught: true }> => {
+    const name = commandInputs[1];
+    const data = await(await config.commands.catch.callback(deckAPI, name))
+    return data;
 }

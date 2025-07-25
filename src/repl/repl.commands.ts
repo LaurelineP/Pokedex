@@ -1,7 +1,7 @@
 import { DeckAPI } from "../services/deck.api.js";
 import { texts } from "./repl.texts.js";
 import type { CLICommand } from "./repl.types.js";
-import { loadMapNamesBack, loadMapNamesNext, loadPopulation } from "../services/deck.api.handlers.js";
+import { loadOneBeing, loadMapNamesBack, loadMapNamesNext, loadPopulation } from "../services/deck.api.handlers.js";
 import { config } from "../config/config.index.js";
 import { Config } from "../config/config.types.js";
 
@@ -100,6 +100,12 @@ export function getCommands(): Record<string, CLICommand> {
       name: 'explore',
       description: "Get population for a given location",
       callback: async(deckAPI: DeckAPI, locationName: string) => await loadPopulation(deckAPI, locationName),
+      isDeckCommand: true
+    },
+    catch: {
+      name: 'catch',
+      description: 'Attempt to catch a pokemon',
+      callback: async(deckAPI: DeckAPI, name: string) => await loadOneBeing(deckAPI, name),
       isDeckCommand: true
     }
   };

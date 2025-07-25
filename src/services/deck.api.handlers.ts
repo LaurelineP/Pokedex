@@ -53,3 +53,45 @@ export const loadPopulation = async (deckAPI: DeckAPI, locationName: string) => 
   updateCache(population, endpoint);
   return population
 }
+
+
+/** Load the attempted caught being */
+export const loadOneBeing = async (deckAPI: DeckAPI, name: string) => {
+   const endpoint = `${config.api.baseURL}/pokemon/${name}`
+
+   const cachedData = config.cachedData.get(endpoint);
+   
+   const dataInfo = cachedData?.value 
+   || await deckAPI
+    .fetchLivingEntity(endpoint);
+
+
+    /** Catchability */
+    const baseExperience = dataInfo.baseExperience || dataInfo.base_experience;
+    const randomizedNumber = Math.floor( Math.random() * (baseExperience * 1.2));
+
+    /* Caught statuses
+    * - caught in deck: already in the collection - no need to add to the collection
+    * - just caught: already in the collection - needs to add into the collection
+    * */
+    const _isCaughtInDeck = !!DeckAPI.collection.find(x => x?.name === name )
+    const _isJustCaught =  randomizedNumber > baseExperience;
+    const isCaught = _isCaughtInDeck || _isJustCaught;
+    
+    /** Loaded data formatted */
+    const data: {name: string, baseExperience: number} = {
+      name: dataInfo.name,
+      baseExperience,
+    }
+
+    /** Collect to the deck if  */
+    if(_isJustCaught){
+      DeckAPI.collection.push({...data, isCaught})
+    }
+    
+    updateCache(data, endpoint);
+
+  return {...data, isCaught }
+}
+
+// TODO: all above in try catch 

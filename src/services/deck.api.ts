@@ -5,6 +5,7 @@ export class DeckAPI {
     #lastURL: string | null = null;
     private static nextURL: null | string = null;
     private static previousURL: null | string  = null;
+    static collection: Array<{ isCaught: boolean, name: string, baseExperience: number }> = []
 
     constructor(){}
 
@@ -55,6 +56,15 @@ export class DeckAPI {
             throw error;
         }
     }
+
+    async fetchLivingEntity(endpoint: string): Promise<ResponseShallowEncounteredentity>{
+        try {
+            const response = await(await fetch(endpoint)).json();
+            return response;
+        } catch( error ){
+            throw error;
+        }
+    }
 }
 
 
@@ -77,4 +87,9 @@ export type ResponseShallowPopulation = {
 
 export type EnconterPopulation = {
     pokemon: { name: string, url: string },
+}
+
+export type ResponseShallowEncounteredentity = {
+    base_experience: EnconterPopulation[],
+    name: string
 }

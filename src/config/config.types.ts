@@ -12,9 +12,9 @@ export type Config = {
     /** List of supported commands  */
     commands: Record<string, CLICommand>;
 
-    /** API values */
+    /** API values & Deck info */
     api: {
-        baseURL: string
+        baseURL: string,
     }
 
     /** Cached Data from api */
