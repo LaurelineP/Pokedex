@@ -1,6 +1,10 @@
 # PokeDex CLI
 From the CLI get info about the Pokedex.
 
+<video src="https://github.com/user-attachments/assets/5a74115c-5fb6-40c3-8791-947944d2e3fa">
+</video>
+
+
 **Stack**
 - TypeScript / JavaScript
 - Node (standard input and outpu interface -> readable streams: REPL )
@@ -13,11 +17,6 @@ From the CLI get info about the Pokedex.
 - run project locally: `<PM> dev`
 - run project locally + text logs: `<PM> dev:logs`
 - run tests: `<PM> test`
-
-
-
-https://github.com/user-attachments/assets/b18a829a-d975-48e2-b10a-b7a313170a1c
-
 
 
 ## Usage
