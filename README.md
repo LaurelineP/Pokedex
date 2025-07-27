@@ -15,6 +15,11 @@ From the CLI get info about the Pokedex.
 - run tests: `<PM> test`
 
 
+
+https://github.com/user-attachments/assets/b18a829a-d975-48e2-b10a-b7a313170a1c
+
+
+
 ## Usage
 Commands set to interract with the CLI
 | commands | description |
