@@ -6,6 +6,8 @@ From the CLI get info about the Pokedex.
 
 
 **Stack**
+
+[![My Skills](https://skillicons.dev/icons?i=nodejs,js,typescript,vitest)](https://skillicons.dev)<br> 
 - TypeScript / JavaScript
 - Node (standard input and outpu interface -> readable streams: REPL )
 - Vitest: Testing tool to unit test some CLI points
