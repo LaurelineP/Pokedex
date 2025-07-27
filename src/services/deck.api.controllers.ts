@@ -6,7 +6,7 @@ import { config } from "../config/config.index.js";
 import { updateCache } from "../state/state.cache.js";
 
 import { getAPILocationEndpoint, mapNames } from "./deck.api.helpers.js";
-import { DeckAPI, EndpointCatch, EndpointExplore, EndpointMap } from "./deck.api.js";
+import { DeckAPI, EndpointCatch, EndpointCatchDTO, EndpointExplore, EndpointMap } from "./deck.api.js";
 
 
 /** Displays 20 initial or next map location names - "map" command related */
@@ -67,26 +67,25 @@ export const loadPopulation = async (deckAPI: DeckAPI, locationName: string) => 
 export const loadOneBeing = async (deckAPI: DeckAPI, name: string) => {
   try {
     const endpoint = `${config.api.baseURL}/pokemon/${name}`;
-   const cachedData = config.cachedData.get(endpoint);
+    const cachedData = config.cachedData.get(endpoint);
    
 
    /* ---------------------------------- DATA ---------------------------------- */
 
-   let dataInfo, baseExperience: number;
+   let data;
    /* Data from already requested and saved data */
    if( cachedData ){
-     dataInfo        = cachedData.value;
-     baseExperience  = dataInfo.baseExperience;
+     data             = cachedData.value;
     }
     /* Newly requested data */
     else {
-      dataInfo        = await deckAPI.fetchEndpoint<EndpointCatch>(endpoint)
-      baseExperience  = dataInfo.base_experience;
-   }
-
+      const response  = await deckAPI.fetchEndpoint<EndpointCatch>(endpoint)
+      data            = getOneBeingSpecsToDTO(response)
+    }
+    
    /* -------------------------- CATCHABILITY & STATUS ------------------------- */
-
-    /** Catchability indice, should be higher to `catchabilityNumber` */
+   /** Catchability indice, should be higher to `catchabilityNumber` */
+    const baseExperience = data.baseExperience;
     const catchabilityNumber = Math.floor( Math.random() * (baseExperience * 1.2));
 
     /* Caught statuses
@@ -95,12 +94,6 @@ export const loadOneBeing = async (deckAPI: DeckAPI, name: string) => {
     * */
     const isCaughtInDeck = DeckAPI.collection.some(x => x?.name === name )
     const isCatchSuccessful =  catchabilityNumber > baseExperience;
-    
-    /** Loaded data formatted */
-    const data: {name: string, baseExperience: number} = {
-      name: dataInfo.name,
-      baseExperience,
-    }
 
     /* ----------------------------- DECK COLLECTION ---------------------------- */
   
@@ -119,4 +112,45 @@ export const loadOneBeing = async (deckAPI: DeckAPI, name: string) => {
     }
   }
    
+}
+
+
+export const loadOneBeingDetails = ( deckAPI: DeckAPI, name: string) => {
+  const deckCollection  = DeckAPI.collection;
+  const compare = (stored: {name: string}) => stored.name.toLocaleLowerCase() === name.toLocaleLowerCase();
+  const found = deckCollection.find(compare);
+
+  if( found ){
+    const parsed = getParsedBeing( found )
+    return parsed;
+  }
+}
+export const getOneBeingSpecsToDTO = (being: EndpointCatch): EndpointCatchDTO => {
+  const { base_experience, stats, types, height, weight, name } = being;
+  return {
+    name,
+    height,
+    weight,
+    baseExperience: base_experience,
+    types: types.map(({ type }) => ({
+      type: { name: type.name }
+    })),
+    stats: stats.map(({ base_stat, stat }) => ({
+      baseStat: base_stat,
+      stat
+    })),
+  }
+}
+
+
+export const getParsedBeing = ( being: EndpointCatchDTO & { isCaught: boolean }) => {
+  return {
+    ...being,
+    stats: being.stats.map(_stat => {
+      return {
+        [ _stat.stat.name ]: _stat.baseStat
+      }
+    }),
+    types: being.types.map(typeItem => typeItem.type.name )
+  }
 }

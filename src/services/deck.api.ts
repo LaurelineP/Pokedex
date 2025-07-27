@@ -5,7 +5,7 @@ export class DeckAPI {
     #lastURL: string | null = null;
     private static nextURL: null | string = null;
     private static previousURL: null | string  = null;
-    static collection: Array<{ isCaught: boolean, name: string, baseExperience: number }> = []
+    static collection: Array<EndpointCatchDTO & { isCaught: boolean }> = []
 
     constructor(){}
 
@@ -67,6 +67,37 @@ export type EndpointExplore = {
 export type EndpointCatch = {
     base_experience: number;
     name: string;
+    height: number;
+    weight: number;
+    stats: {
+        base_stat: number;
+        stat: {
+            name: string
+        }
+    }[],
+    types: {
+        type: {
+            name: string
+        }
+    }[]
+}
+
+export type EndpointCatchDTO = {
+    baseExperience: number;
+    name: string;
+    height: number;
+    weight: number;
+    stats: {
+        baseStat: number;
+        stat: {
+            name: string
+        }
+    }[],
+    types: {
+        type: {
+            name: string
+        }
+    }[]
 }
 
 

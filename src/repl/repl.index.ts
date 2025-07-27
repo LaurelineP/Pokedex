@@ -1,12 +1,12 @@
 
 process.loadEnvFile();
 
-import { initReplState, logPrompt, logRootPrompt } from './repl.utils.js';
+import { initReplState, logCommandOutput, logRootPrompt } from './repl.utils.js';
 import { getTerminalInputs } from './repl.commands.js';
 import { config } from '../config/config.index.js';
 import { DeckAPI } from '../services/deck.api.js';
 
-import { getEmote, messageTool, texts } from './repl.texts.js'
+import { getEmote, texts } from './repl.texts.js'
 
 import type { Interface } from 'readline';
 import type { APICallback, APICallbackWithArg, CLICommand, RegularCallback } from './repl.types.js';
@@ -67,12 +67,30 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
         const requestedCommand = commandMapper[ supportedCommand ];
 
         /* Execute the command handler based on isDeckCommand which conditions the argument */
-        if(!requestedCommand.isDeckCommand){
-            (requestedCommand.callback as RegularCallback)()
-        } else if(!supportedArg) {
-            data = await (await requestedCommand.callback as APICallback)(deckAPI)
-        } else if(supportedArg){
-            data = await (await requestedCommand.callback as APICallbackWithArg)(deckAPI, supportedArg)
+        switch (requestedCommand.name){
+            case 'help':
+            case 'exit':
+                (requestedCommand.callback as RegularCallback)();
+                break;
+            case 'map':
+            case 'mapb':
+                 data = await (await requestedCommand.callback as APICallback)(deckAPI)
+                 break;
+            case 'catch':
+                let tryCount = 0
+                while(!data?.isCaught){
+                    data = await (await requestedCommand.callback as APICallbackWithArg)(deckAPI, supportedArg);
+                    logCommandOutput(requestedCommand, data, supportedArg, tryCount += 1 );
+                    if(data.isCaught) break;
+                }
+                return;
+            case 'explore':
+            case 'inspect':
+                data = await (await requestedCommand.callback as APICallbackWithArg)(deckAPI, supportedArg)
+                if(!data){
+                    throw 'Not Found'
+                }
+                break;
         }
        
         /* Logs output for a command */
@@ -81,48 +99,14 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
         if( error === "Not Found"){
             const emote = getEmote('invalid')
             console.error(`\t|\n${texts.promptValueHeader} ❌${emote} Try with an existing pokemon...\n`)
-        } else {
+        } else if( error instanceof TypeError){
+            logRootPrompt('❌ Something went wrong.')
+            console.error('error', error)
+        }
+        else {
             logRootPrompt('❌ Incorrect argument.')
         }
     } finally {
         rl.prompt();
-    }
-}
-
-/**
- * Logs output for the different context
- * @param requestedCommand 
- * @param data 
- * @param supportedArg 
- */
-const logCommandOutput = (requestedCommand: CLICommand, data: any, supportedArg: string) => {
-    const logDataEntry = () => {
-        console.info(messageTool.content + '\n\t\t|')
-        data.forEach(( datum: string ) => logPrompt( datum, false ))
-    }
-
-    messageTool.content = `${messageTool.headerBase} ${texts.promptValueHeader} `;
-    switch(requestedCommand.name){
-        case 'map':
-        case 'mapb':
-            const mapContext = requestedCommand.name === 'map' ? 'next' : 'previous' 
-            messageTool.content += `🌏 Mapping ${ mapContext } locations...`
-            logDataEntry();
-            break;
-
-        case 'explore':
-            messageTool.content += `📍 Population found for "${supportedArg.replaceAll('-', ' ')}":`
-            logDataEntry();
-            break; 
- 
-        case 'catch':
-            messageTool.content += `🪤  Throwing a Pokeball at ${supportedArg}...`;
-            console.info(messageTool.content + '\n\t\t|')
-            
-            const messageIcon = data.isCaught ? '✨' : getEmote('fail')
-            const messageVariant = data.isCaught ? 'caught' : 'escaped'
-            const extraMessage = `${ messageIcon } ${ supportedArg } ${messageVariant}!`
-            logPrompt(extraMessage)
-            break;
     }
 }

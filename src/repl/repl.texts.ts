@@ -23,7 +23,7 @@ export const messageTool = {
 
 
 const emotes = {
-    fail: ['🫣 ', '😣'],
+    fail: ['🫣 ', '😣', '🥲 ', '🙃'],
     invalid: ['🥱', '😑', '😤', '😡'],
 }
 
@@ -31,7 +31,7 @@ export const getEmote = (kind: 'fail'| 'invalid') => {
     let emote = ''
     if(kind in emotes){
         const emoticons = emotes[ kind ];
-        const randomIndex = Math.round(Math.random() * (emoticons.length - 1))
+        const randomIndex = Math.round(Math.random() * ((emoticons.length - 1) * 1.2))
         emote =  emoticons[ randomIndex ]
     }
     return emote;

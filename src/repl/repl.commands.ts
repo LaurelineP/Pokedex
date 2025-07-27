@@ -1,9 +1,12 @@
 import { DeckAPI } from "../services/deck.api.js";
-import { texts } from "./repl.texts.js";
-import type { CLICommand } from "./repl.types.js";
-import { loadOneBeing, loadMapNamesBack, loadMapNamesNext, loadPopulation } from "../services/deck.api.controllers.js";
 import { config } from "../config/config.index.js";
-import { Config } from "../config/config.types.js";
+import { texts } from "./repl.texts.js";
+import { loadOneBeing, loadMapNamesBack, loadMapNamesNext, loadPopulation, loadOneBeingDetails } from "../services/deck.api.controllers.js";
+import { getSpaceSeparator } from "../utils/text.utils.js";
+
+import type { CLICommand } from "./repl.types.js";
+import type { Config } from "../config/config.types.js";
+
 
 
 
@@ -55,7 +58,7 @@ export const displayCommandUsages = (config: Config, isFirstDisplay: boolean = t
   header += `\t${ space }${ space }- ${sectionMarker.slice(0, Math.floor(sectionMarker.length / 1.2))} -\n`
   
   for( let command in commands ){
-    const commandSpaceSeparator = command.length > 4 ? '\t' : '\t\t'
+    const commandSpaceSeparator = getSpaceSeparator(command);
     const commandDetailText = `\n\t\t- ${ command }:${ commandSpaceSeparator }${ commands[ command ].description }`
     content += commandDetailText;
   }
@@ -101,7 +104,7 @@ export function getCommands(): Record<string, CLICommand> {
     },
     explore: {
       name: 'explore',
-      description: "Get population for a given location",
+      description: "Gets the population for a given location",
       callback: async(deckAPI: DeckAPI, locationName: string) => await loadPopulation(deckAPI, locationName),
       isDeckCommand: true
     },
@@ -109,6 +112,12 @@ export function getCommands(): Record<string, CLICommand> {
       name: 'catch',
       description: 'Attempt to catch a pokemon',
       callback: async(deckAPI: DeckAPI, name: string) => await loadOneBeing(deckAPI, name),
+      isDeckCommand: true
+    },
+    inspect: {
+      name: 'inspect',
+      description: 'Gets details about a Pokemon in the Pokedex',
+      callback: async(deckAPI: DeckAPI, name: string) => await loadOneBeingDetails(deckAPI, name),
       isDeckCommand: true
     }
   };
