@@ -119,6 +119,12 @@ export function getCommands(): Record<string, CLICommand> {
       description: 'Gets details about a Pokemon in the Pokedex',
       callback: async(deckAPI: DeckAPI, name: string) => await loadOneBeingDetails(deckAPI, name),
       isDeckCommand: true
+    },
+    pokedex: {
+      name: 'pokedex',
+      description: 'Lists all Pokemons in the deck',
+      callback: () => DeckAPI.collection,
+      isDeckCommand: true
     }
   };
 }

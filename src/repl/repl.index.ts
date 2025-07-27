@@ -7,6 +7,7 @@ import { config } from '../config/config.index.js';
 import { DeckAPI } from '../services/deck.api.js';
 
 import { getEmote, texts } from './repl.texts.js'
+import { capitalize } from '../utils/text.utils.js';
 
 import type { Interface } from 'readline';
 import type { APICallback, APICallbackWithArg, CLICommand, RegularCallback } from './repl.types.js';
@@ -90,6 +91,9 @@ const handleCommand = async (commandInputs: string[], rl: Interface) => {
                 if(!data){
                     throw 'Not Found'
                 }
+                break;
+            case 'pokedex':
+                data = DeckAPI.collection.map( datum => capitalize(datum.name) );
                 break;
         }
        

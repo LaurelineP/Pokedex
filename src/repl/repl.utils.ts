@@ -1,4 +1,4 @@
-import { capitatalize, formatSpecToTexts } from "../utils/text.utils.js";
+import { capitalize, formatSpecToTexts } from "../utils/text.utils.js";
 import { getEmote, messageTool, texts } from "./repl.texts.js";
 import { createInterface, type Interface } from "readline";
 import type { CLICommand, CLICommands } from "./repl.types.js";
@@ -91,7 +91,7 @@ export const logCommandOutput = (requestedCommand: CLICommand, data: any, suppor
             break; 
  
         case 'catch':
-            const name = capitatalize(supportedArg);
+            const name = capitalize(supportedArg);
             if( count === 1){
                 messageTool.content += `🪤  Throwing a Pokeball at ${name}...`;
                 console.info(messageTool.content + '\n\t\t|')
@@ -108,7 +108,7 @@ export const logCommandOutput = (requestedCommand: CLICommand, data: any, suppor
                 const extraMessageStart = count > 10 ? 'Gosh, after' : count > 5 ? 'Finally, after' : 'Yay, after'
                 const extraMessageEnd = (count > 5 ? '. . .' : count > 5 ? '...' : '!' ) + messageTool.start.line
                 extraMessage += extraMessageIndents
-                extraMessage += `${extraMessageStart} ${count} attempts${extraMessageEnd}`
+                extraMessage += `${extraMessageStart} ${count} attempt(s)${extraMessageEnd}`
                 extraMessage += `  You may now inspect it with the "inspect ${name.toLowerCase()}" command.`
                 extraMessage += messageTool.start.line
             }
@@ -119,6 +119,10 @@ export const logCommandOutput = (requestedCommand: CLICommand, data: any, suppor
             const { baseExperience, isCaught, ...toProcess } = data;
             const dataTexts = formatSpecToTexts(toProcess)
             logDataEntry(dataTexts, true)
+            break;
+        case 'pokedex':
+            messageTool.content += `📖 Pokedex list:`;
+            logDataEntry(data, true)
             break;
     }
 }
