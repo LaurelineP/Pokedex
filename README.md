@@ -1,11 +1,11 @@
-# Deck CLI
-From the CLI get info about the deck in question.
+# PokeDex CLI
+From the CLI get info about the Pokedex.
 
 **Stack**
 - TypeScript / JavaScript
 - Node (standard input and outpu interface -> readable streams: REPL )
 - Vitest: Testing tool to unit test some CLI points
-
+- API: `https:pokeapi.co`
 
 ## Project commands
 *`PM` for the package manager you use*
@@ -17,5 +17,12 @@ From the CLI get info about the deck in question.
 
 ## Usage
 Commands set to interract with the CLI
-- help
-- exit
+| commands | description |
+|----------|-------------|
+| help              | Lists all commands |
+| exit              | Exit the deck |
+| map               | Gets the 20 next locations |
+| mapb              | Gets the 20 last locations |
+| catch <name>      | Catches a Pokemon |
+| inspect <name>    | Inspects a captured Pokemon |
+| pokedex           | Lists all captured Pokemons |
